@@ -22,8 +22,15 @@
 	</div>
 
 	<div id="content">
-		<h2>Demonstration</h2>
-
+		<div>
+			<h2 style="display: inline;">How to play: &nbsp;</h2>
+			<p style="display: inline;">Click on the white block to create wall, mouse will try to escape the board.
+				If mouse reaches to boundary it will be considered as escaped.</p>
+		</div>
+		<div>
+			<label for="searchDiagonal">Allow diagonal movement?</label>
+			<input type="checkbox" name="searchDiagonal" checked id="searchDiagonal" />
+		</div>
 	    <div id="controls" class='clear' style="display: none;">
 
 	    		<label for="selectWallFrequency">Wall Frequency: </label>
@@ -50,8 +57,8 @@
 	    		<label for="checkDebug">Show search info?</label>
 	    		<input type="checkbox" name="checkDebug" id="checkDebug" />
 	    		<br />
-	    		<label for="searchDiagonal">Allow diagonal movement?</label>
-	    		<input type="checkbox" name="searchDiagonal" id="searchDiagonal" />
+	    		<!-- <label for="searchDiagonal">Allow diagonal movement?</label>
+	    		<input type="checkbox" name="searchDiagonal" id="searchDiagonal" /> -->
 	    		<br />
 	    		<label for="checkClosest">Closest node if target unreachable?</label>
 	    		<input type="checkbox" name="checkClosest" id="checkClosest" />

@@ -21,12 +21,12 @@ $(function() {
         wallFrequency: $selectWallFrequency.val(),
         gridSize: $selectGridSize.val(),
         debug: $checkDebug.is("checked"),
-        diagonal: false, //$searchDiagonal.is("checked"),
+        diagonal: $searchDiagonal.prop("checked"),
         closest: true //$checkClosest.is("checked")
     };
-
+    debugger;
     var grid = new GraphSearch($grid, opts, astar.search);
-    grid.graph.diagonal = false;
+    grid.graph.diagonal = $searchDiagonal.prop("checked");
 
     $("#btnGenerate").click(function() {
         grid.initialize();
@@ -37,7 +37,7 @@ $(function() {
         $("#search_grid").css("pointer-events", "unset");
         $(".grid_item").css("cursor", "pointer");
         grid.initialize();
-        grid.graph.diagonal = false;
+        grid.graph.diagonal = $searchDiagonal.prop("checked");
     });
 
     $selectWallFrequency.change(function() {
@@ -55,7 +55,7 @@ $(function() {
     });
 
     $searchDiagonal.change(function() {
-        var val = $(this).is(":checked");
+        var val = $(this).prop(":checked");
         grid.setOption({diagonal: val});
         grid.graph.diagonal = val;
     });
@@ -175,6 +175,10 @@ GraphSearch.prototype.cellClicked = function($end) {
     // $end.addClass("finish");
     var $start = this.$cells.filter("." + css.start),
         start = this.nodeFromElement($start);
+
+        if(start == end){
+            return;
+        }
 
     if(this.boundary.findIndex(x => x == start) > -1){
         $start.removeClass(css.start).removeClass(css.active);
