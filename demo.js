@@ -15,18 +15,20 @@ $(function() {
         $selectGridSize = $("#selectGridSize"),
         $checkDebug = $("#checkDebug"),
         $searchDiagonal = $("#searchDiagonal"),
-        $checkClosest = $("#checkClosest");
+        $checkClosest = $("#checkClosest"),
+        $allowTwoStep = $("#allowTwoStep");
 
     var opts = {
         wallFrequency: $selectWallFrequency.val(),
         gridSize: $selectGridSize.val(),
-        debug: $checkDebug.is("checked"),
-        diagonal: $searchDiagonal.prop("checked"),
+        debug: $checkDebug.is(":checked"),
+        diagonal: true, //$searchDiagonal.prop("checked"),
         closest: true //$checkClosest.is("checked")
     };
-    debugger;
+    
     var grid = new GraphSearch($grid, opts, astar.search);
-    grid.graph.diagonal = $searchDiagonal.prop("checked");
+    grid.graph.diagonal = true; //$searchDiagonal.prop("checked");
+    allowTwoStep = $allowTwoStep.prop("checked");
 
     $("#btnGenerate").click(function() {
         grid.initialize();
@@ -37,7 +39,7 @@ $(function() {
         $("#search_grid").css("pointer-events", "unset");
         $(".grid_item").css("cursor", "pointer");
         grid.initialize();
-        grid.graph.diagonal = $searchDiagonal.prop("checked");
+        grid.graph.diagonal = true; //$searchDiagonal.prop("checked");
     });
 
     $selectWallFrequency.change(function() {
@@ -53,6 +55,10 @@ $(function() {
     $checkDebug.change(function() {
         grid.setOption({debug: $(this).is(":checked")});
     });
+
+    $allowTwoStep.change(function(){
+        allowTwoStep = $(this).prop("checked");
+    })
 
     $searchDiagonal.change(function() {
         var val = $(this).prop(":checked");
@@ -77,6 +83,7 @@ $(function() {
 });
 
 var css = { start: "start", finish: "finish", wall: "wall", active: "active" };
+var allowTwoStep = false;
 
 function GraphSearch($graph, options, implementation) {
     this.$graph = $graph;
@@ -94,6 +101,7 @@ GraphSearch.prototype.initialize = function() {
         nodes = [],
         $graph = this.$graph;
     $graph.empty();
+    this.stepCount = 0;
 
     var cellWidth = ($graph.width()/this.opts.gridSize)-2,  // -2 for border
         cellHeight = ($graph.height()/this.opts.gridSize)-2,
@@ -193,6 +201,21 @@ GraphSearch.prototype.cellClicked = function($end) {
     }
     $end.removeClass("weight1").addClass(css.wall);
     this.updateWall($end);
+    this.stepCount++;
+    if(allowTwoStep && this.stepCount < 2){
+        return;
+    }else{
+        this.stepCount = 0;
+    }
+
+    // const allowDiagonal = Math.floor(Math.random()*5); 
+    // if(allowDiagonal === 0 || allowDiagonal === 2 || allowDiagonal === 4){
+    //     this.setOption({diagonal: false});
+    //     this.graph.diagonal = false;
+    // }else{
+    //     this.setOption({diagonal: true});
+    //     this.graph.diagonal = true;
+    // }
 
     var sTime = performance ? performance.now() : new Date().getTime();
     var paths =[];
