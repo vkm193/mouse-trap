@@ -10,6 +10,11 @@ var WALL = 0,
 
 $(function() {
 
+    toastr.options = {
+        "positionClass": "toast-bottom-center",
+        "preventDuplicates": true,
+    }
+
     var $grid = $("#search_grid"),
         $selectWallFrequency = $("#selectWallFrequency"),
         $selectGridSize = $("#selectGridSize"),
@@ -26,9 +31,14 @@ $(function() {
         closest: true //$checkClosest.is("checked")
     };
     
+    const width = Math.ceil(($(window).width() * 80)/100);
+    const height = Math.ceil(($(window).height() * 80)/100);
+    const boardSize = width <= height ? width : height;
+    $grid.css({"width": boardSize, "height": boardSize});
+
+    allowTwoStep = $allowTwoStep.prop("checked");
     var grid = new GraphSearch($grid, opts, astar.search);
     grid.graph.diagonal = true; //$searchDiagonal.prop("checked");
-    allowTwoStep = $allowTwoStep.prop("checked");
 
     $("#btnGenerate").click(function() {
         grid.initialize();
@@ -107,6 +117,7 @@ GraphSearch.prototype.initialize = function() {
         cellHeight = ($graph.height()/this.opts.gridSize)-2,
         $cellTemplate = $("<span />").addClass("grid_item").width(cellWidth).height(cellHeight),
         startSet = false;
+    const selectedStartCell = Math.floor(Math.random() * (this.opts.gridSize - 6))+3;
 
     for(var x = 0; x < this.opts.gridSize; x++) {
         var $row = $("<div class='clear' />"),
@@ -116,8 +127,9 @@ GraphSearch.prototype.initialize = function() {
         for(var y = 0; y < this.opts.gridSize; y++) {
             var id = "cell_"+x+"_"+y,
                 $cell = $cellTemplate.clone(),
-                isCenter = (x === Math.ceil(this.opts.gridSize/2) && y === Math.ceil(this.opts.gridSize/2)),
+                isCenter = (x === selectedStartCell && y === selectedStartCell),
                 isWall = 1;
+
             $cell.attr("id", id).attr("x", x).attr("y", y);
             $row.append($cell);
             gridRow.push($cell);
@@ -175,9 +187,10 @@ GraphSearch.prototype.cellClicked = function($end) {
 
     var end = this.nodeFromElement($end);
    
-    // if($end.hasClass(css.wall) || $end.hasClass(css.start)) {
-    //     return;
-    // }
+    if($end.hasClass(css.wall) || $end.hasClass(css.start)) {
+        toastr.warning('Please create wall on empty block!')
+        return;
+    }
 
     // this.$cells.removeClass(css.finish);
     // $end.addClass("finish");
@@ -188,35 +201,28 @@ GraphSearch.prototype.cellClicked = function($end) {
             return;
         }
 
-    if(this.boundary.findIndex(x => x == start) > -1){
-        $start.removeClass(css.start).removeClass(css.active);
-        $gameOver = $("#game-over");
-        let $gameOverText = $(".game-over");
-        $gameOver.show();
-        $gameOver.css("background-image", "url('rat.png')");
-        $gameOverText.html("I escaped this time, yayyyy!!!");
-        $("#search_grid").css("pointer-events", "none");
-        $(".grid_item").css("cursor", "default");
-        return;
-    }
     $end.removeClass("weight1").addClass(css.wall);
     this.updateWall($end);
-    this.stepCount++;
-    if(allowTwoStep && this.stepCount < 2){
+    if(allowTwoStep && ++this.stepCount < 2){
+        toastr.success('Great, take the next move!')
         return;
     }else{
+        if(toastr){
+            toastr.clear();
+        }
         this.stepCount = 0;
     }
 
-    // const allowDiagonal = Math.floor(Math.random()*5); 
-    // if(allowDiagonal === 0 || allowDiagonal === 2 || allowDiagonal === 4){
-    //     this.setOption({diagonal: false});
-    //     this.graph.diagonal = false;
-    // }else{
-    //     this.setOption({diagonal: true});
-    //     this.graph.diagonal = true;
-    // }
-
+    if(!allowTwoStep){
+        const allowDiagonal = Math.floor(Math.random()*5); 
+        if(allowDiagonal === 0 || allowDiagonal === 2){
+            this.setOption({diagonal: false});
+            this.graph.diagonal = false;
+        }else{
+            this.setOption({diagonal: true});
+            this.graph.diagonal = true;
+        }
+    }
     var sTime = performance ? performance.now() : new Date().getTime();
     var paths =[];
     for(var i = 0; i< this.boundary.length; i++){
@@ -229,7 +235,6 @@ GraphSearch.prototype.cellClicked = function($end) {
     }
 
     if(paths.length === 0){
-        debugger;
         let $gameOver = $("#game-over");
         let $gameOverText = $(".game-over");
         $gameOver.show();
@@ -237,6 +242,8 @@ GraphSearch.prototype.cellClicked = function($end) {
         $gameOverText.html("You got me this time!! Congratulations!! Can you trap me again?");
         $("#search_grid").css("pointer-events", "none");
         $(".grid_item").css("cursor", "default");
+        const audio = new Audio("won.wav");
+        audio.play();
         return;
     }
 
@@ -333,6 +340,24 @@ GraphSearch.prototype.updatePosition = function(newPositionNode){
         };
     this.$graph.find("." + css.start).removeClass(css.active).removeClass(css.start);
     elementFromNode(newPositionNode).addClass(css.active).addClass(css.start);
+
+    const start = newPositionNode;
+    const $start = elementFromNode(start);
+    if(this.boundary.findIndex(x => x == start) > -1){
+        $("#search_grid").css("pointer-events", "none");
+        const audio = new Audio("lost.wav");
+        audio.play();
+        setTimeout(()=> {
+            $start.removeClass(css.start).removeClass(css.active);
+            $gameOver = $("#game-over");
+            let $gameOverText = $(".game-over");
+            $gameOver.show();
+            $gameOver.css("background-image", "url('rat.png')");
+            $gameOverText.html("I escaped this time, yayyyy!!!");
+            $(".grid_item").css("cursor", "default");
+        }, 1000);
+        return;
+    }
 }
 
 GraphSearch.prototype.animatePath = function(path) {
