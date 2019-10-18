@@ -20,15 +20,15 @@ $(function() {
         $selectGridSize = $("#selectGridSize"),
         $checkDebug = $("#checkDebug"),
         $searchDiagonal = $("#searchDiagonal"),
-        $checkClosest = $("#checkClosest"),
-        $allowTwoStep = $("#allowTwoStep");
+        $checkClosest = $("#checkClosest");
+        //$allowTwoStep = $("#allowTwoStep");
 
     var opts = {
         wallFrequency: $selectWallFrequency.val(),
         gridSize: $selectGridSize.val(),
         debug: $checkDebug.is(":checked"),
         diagonal: true, //$searchDiagonal.prop("checked"),
-        closest: true //$checkClosest.is("checked")
+        closest: false //$checkClosest.is("checked")
     };
     
     const width = Math.ceil(($(window).width() * 80)/100);
@@ -36,7 +36,7 @@ $(function() {
     const boardSize = width <= height ? width : height;
     $grid.css({"width": boardSize, "height": boardSize});
 
-    allowTwoStep = $allowTwoStep.prop("checked");
+    //allowTwoStep = $allowTwoStep.prop("checked");
     var grid = new GraphSearch($grid, opts, astar.search);
     grid.graph.diagonal = true; //$searchDiagonal.prop("checked");
 
@@ -66,9 +66,9 @@ $(function() {
         grid.setOption({debug: $(this).is(":checked")});
     });
 
-    $allowTwoStep.change(function(){
-        allowTwoStep = $(this).prop("checked");
-    })
+    // $allowTwoStep.change(function(){
+    //     allowTwoStep = $(this).prop("checked");
+    // })
 
     $searchDiagonal.change(function() {
         var val = $(this).prop(":checked");
@@ -79,8 +79,6 @@ $(function() {
     $checkClosest.change(function() {
         grid.setOption({closest: $(this).is(":checked")});
     });
-
-
 
     $("#generateWeights").click( function () {
         if ($("#generateWeights").prop("checked")) {
@@ -93,7 +91,7 @@ $(function() {
 });
 
 var css = { start: "start", finish: "finish", wall: "wall", active: "active" };
-var allowTwoStep = false;
+//var allowTwoStep = false;
 
 function GraphSearch($graph, options, implementation) {
     this.$graph = $graph;
@@ -185,7 +183,9 @@ GraphSearch.prototype.getBoundary = function(){
 }
 GraphSearch.prototype.cellClicked = function($end) {
 
-    var end = this.nodeFromElement($end);
+    //var end = this.nodeFromElement($end);
+    var $start = this.$cells.filter("." + css.start),
+        start = this.nodeFromElement($start);
    
     if($end.hasClass(css.wall) || $end.hasClass(css.start)) {
         toastr.warning('Please create wall on empty block!')
@@ -194,26 +194,25 @@ GraphSearch.prototype.cellClicked = function($end) {
 
     // this.$cells.removeClass(css.finish);
     // $end.addClass("finish");
-    var $start = this.$cells.filter("." + css.start),
-        start = this.nodeFromElement($start);
+    
 
-        if(start == end){
-            return;
-        }
+        // if(start == end){
+        //     return;
+        // }
 
     $end.removeClass("weight1").addClass(css.wall);
     this.updateWall($end);
-    if(allowTwoStep && ++this.stepCount < 2){
-        toastr.success('Great, take the next move!')
-        return;
-    }else{
-        if(toastr){
-            toastr.clear();
-        }
-        this.stepCount = 0;
-    }
+    // if(allowTwoStep && ++this.stepCount < 2){
+    //     toastr.success('Great, take the next move!')
+    //     return;
+    // }else{
+    //     if(toastr){
+    //         toastr.clear();
+    //     }
+    //     this.stepCount = 0;
+    // }
 
-    if(!allowTwoStep){
+    //if(!allowTwoStep){
         const allowDiagonal = Math.floor(Math.random()*5); 
         if(allowDiagonal === 0 || allowDiagonal === 2){
             this.setOption({diagonal: false});
@@ -222,7 +221,7 @@ GraphSearch.prototype.cellClicked = function($end) {
             this.setOption({diagonal: true});
             this.graph.diagonal = true;
         }
-    }
+    //}
     var sTime = performance ? performance.now() : new Date().getTime();
     var paths =[];
     for(var i = 0; i< this.boundary.length; i++){

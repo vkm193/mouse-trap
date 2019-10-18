@@ -122,6 +122,15 @@ pre span.key {
 	visibility: hidden;
 }
 
+.playing-instruction{
+  text-align: center;
+  margin-top: 10px;
+}
+
+#main{
+  margin-top: 50px;
+}
+
 #message {
 	color:#f00;
 	font-size:1.2em;
