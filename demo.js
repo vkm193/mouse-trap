@@ -343,7 +343,7 @@ GraphSearch.prototype.updatePosition = function(newPositionNode){
 
     const start = newPositionNode;
     const $start = elementFromNode(start);
-    if(this.boundary.findIndex(x => x == start) > -1){
+    if(this.boundary.findIndex(x => (x.x == start.x && x.y == start.y)) > -1){
         $("#search_grid").css("pointer-events", "none");
         const audio = new Audio("lost.wav");
         audio.play();
@@ -356,7 +356,6 @@ GraphSearch.prototype.updatePosition = function(newPositionNode){
             $gameOverText.html("I escaped this time, yayyyy!!!");
             $(".grid_item").css("cursor", "default");
         }, 1000);
-        return;
     }
 }
 
