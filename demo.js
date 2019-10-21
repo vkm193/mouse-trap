@@ -223,16 +223,21 @@ GraphSearch.prototype.cellClicked = function($end) {
         }
     //}
     var sTime = performance ? performance.now() : new Date().getTime();
-    var paths =[];
-    for(var i = 0; i< this.boundary.length; i++){
-        let path = this.search(this.graph, start, this.boundary[i], {
-            closest: this.opts.closest
-        });
-        if(path.length > 0){
-            paths.push(path);        
-        }
+    var paths = this.getPath(start);
+    // for(var i = 0; i< this.boundary.length; i++){
+    //     let path = this.search(this.graph, start, this.boundary[i], {
+    //         closest: this.opts.closest
+    //     });
+    //     if(path.length > 0){
+    //         paths.push(path);        
+    //     }
+    // }
+    
+    if(paths.length === 0 && (allowDiagonal === 0 || allowDiagonal === 2)){
+        this.setOption({diagonal: true});
+        this.graph.diagonal = true;
+        paths = this.getPath(start);
     }
-
     if(paths.length === 0){
         let $gameOver = $("#game-over");
         let $gameOverText = $(".game-over");
@@ -264,6 +269,20 @@ GraphSearch.prototype.cellClicked = function($end) {
         this.updatePosition(next);
     }
 };
+
+GraphSearch.prototype.getPath = function(start){
+    var paths =[];
+    for(var i = 0; i< this.boundary.length; i++){
+        let path = this.search(this.graph, start, this.boundary[i], {
+            closest: this.opts.closest
+        });
+        if(path.length > 0){
+            paths.push(path);        
+        }
+    }
+    return paths;
+}
+
 GraphSearch.prototype.drawDebugInfo = function() {
     this.$cells.html(" ");
     var that = this;
