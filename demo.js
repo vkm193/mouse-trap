@@ -311,7 +311,9 @@ GraphSearch.prototype.updateWall = function($cell){
     const xCord = parseInt($cell.attr("x"));
     const yCord = parseInt($cell.attr("y"));
     const index = this.boundary.findIndex((node)=> node == this.graph.grid[xCord][yCord]);
-    this.boundary.splice(index, 1);
+    if(index > -1){
+        this.boundary.splice(index, 1);
+    }
     this.graph.grid[xCord][yCord].weight = WALL;
 }
 
