@@ -48,7 +48,7 @@ $(function() {
 
     $btnOk.click(function(){
         $("#search_grid").css("pointer-events", "unset");
-        $instructions.hide('slow');
+        $instructions.hide();
     });
 
     $("#replay").click(function() {
