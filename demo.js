@@ -122,7 +122,8 @@ GraphSearch.prototype.initialize = function() {
         cellHeight = ($graph.height()/this.opts.gridSize)-2,
         $cellTemplate = $("<span />").addClass("grid_item").width(cellWidth).height(cellHeight),
         startSet = false;
-    const selectedStartCell = Math.floor(Math.random() * (this.opts.gridSize - 6))+3;
+    let selectedStartCell = Math.floor(Math.random() * (this.opts.gridSize - 8))+5;
+    selectedStartCell = selectedStartCell > 9 ? 9 : selectedStartCell;
 
     for(var x = 0; x < this.opts.gridSize; x++) {
         var $row = $("<div class='clear' />"),
