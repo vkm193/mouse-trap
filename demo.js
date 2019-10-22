@@ -20,7 +20,9 @@ $(function() {
         $selectGridSize = $("#selectGridSize"),
         $checkDebug = $("#checkDebug"),
         $searchDiagonal = $("#searchDiagonal"),
-        $checkClosest = $("#checkClosest");
+        $checkClosest = $("#checkClosest"),
+        $btnOk = $("#btnOk"),
+        $instructions = $("#instructions");
         //$allowTwoStep = $("#allowTwoStep");
 
     var opts = {
@@ -42,6 +44,11 @@ $(function() {
 
     $("#btnGenerate").click(function() {
         grid.initialize();
+    });
+
+    $btnOk.click(function(){
+        $("#search_grid").css("pointer-events", "unset");
+        $instructions.hide('slow');
     });
 
     $("#replay").click(function() {
