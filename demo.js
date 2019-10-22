@@ -22,7 +22,7 @@ $(function() {
         $searchDiagonal = $("#searchDiagonal"),
         $checkClosest = $("#checkClosest"),
         $btnOk = $("#btnOk"),
-        $instructions = $("#instructions");
+        $instructions = $("#instruction");
         //$allowTwoStep = $("#allowTwoStep");
 
     var opts = {
